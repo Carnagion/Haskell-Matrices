@@ -7,14 +7,17 @@ module Matrix (
     rowCount,
     columnCount,
     square,
+    singular,
     symmetric,
     diagonal,
     adjugate,
     determinant,
     transpose,
+    inverse,
     cofactor,
     complementMinor,
-    complementSubMatrix,
+    complementSubmatrix,
+    scalarProduct,
 ) where
 
 type Matrix a = [[a]]
@@ -49,6 +52,10 @@ columnCount (x:xs) = length x
 square :: Matrix a -> Bool
 square m = rowCount m == columnCount m
 
+-- | Returns true if the determinant of the matrix is 0.
+singular :: (Num a, Eq a) => Matrix a -> Bool
+singular m = determinant m == 0
+
 -- | Returns true if the matrix is symmetric (i.e. equal to its transpose).
 symmetric :: Eq a => Matrix a -> Bool
 symmetric m = m == transpose m
@@ -61,7 +68,7 @@ diagonal m = mapIndex (\ rs r -> element r r m) m
 adjugate :: Num a => Matrix a -> Matrix a
 adjugate m = transpose (mapIndex (\ rs r -> mapIndex (\ cs c -> cofactor m r c) rs) m)
 
--- | Returns the determinant of the matrix. The matrix must be square.
+-- | Returns the determinant of the matrix. Throws an error if the matrix is not square.
 determinant :: Num a => Matrix a -> a
 determinant [[x]] = x
 determinant [[a0, a1], [b0, b1]] = (a0 * b1) - (a1 * b0)
@@ -71,17 +78,25 @@ determinant m = sum (mapIndex (\ x i -> element 0 i m * cofactor m 0 i) (row 0 m
 transpose :: Matrix a -> Matrix a
 transpose m = mapIndex (\ xs i -> column i m) m
 
+-- | Returns the inverse of the matrix. Throws an error if the matrix is singular.
+inverse :: Fractional a => Matrix a -> Matrix a
+inverse m = scalarProduct (adjugate m) (1.0 / determinant m)
+
 -- | Returns the cofactor of the matrix at the specified row and column.
 cofactor :: Num a => Matrix a -> Int -> Int -> a
 cofactor m r c = ((-1) ^ (r + c)) * complementMinor m r c
 
 -- | Returns the complement minor of the matrix at the specified row and column.
 complementMinor :: Num a => Matrix a -> Int -> Int -> a
-complementMinor m r c = determinant (complementSubMatrix m r c)
+complementMinor m r c = determinant (complementSubmatrix m r c)
 
 -- | Returns the complement sub-matrix of the matrix at the specified row and column.
-complementSubMatrix :: Num a => Matrix a -> Int -> Int -> Matrix a
-complementSubMatrix m r c = exceptIndex r [exceptIndex c rs | rs <- m]
+complementSubmatrix :: Num a => Matrix a -> Int -> Int -> Matrix a
+complementSubmatrix m r c = exceptIndex r [exceptIndex c rs | rs <- m]
+
+-- | Multiplies all elements of the matrix with the specified scalar.
+scalarProduct :: Num a => Matrix a -> a -> Matrix a
+scalarProduct m s = map (map (* s)) m
 
 {- Utility functions -}
 
