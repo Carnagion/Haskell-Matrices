@@ -7,7 +7,9 @@ module Matrix (
     rowCount,
     columnCount,
     square,
+    symmetric,
     diagonal,
+    adjugate,
     determinant,
     transpose,
     cofactor,
@@ -38,7 +40,7 @@ column i m = [xs !! i | xs <- m]
 rowCount :: Matrix a -> Int
 rowCount = length
 
--- | Get the number of columns in the matrix.
+-- | Returns the number of columns in the matrix.
 columnCount :: Matrix a -> Int
 columnCount [] = 0
 columnCount (x:xs) = length x
@@ -47,9 +49,17 @@ columnCount (x:xs) = length x
 square :: Matrix a -> Bool
 square m = rowCount m == columnCount m
 
+-- | Returns true if the matrix is symmetric (i.e. equal to its transpose).
+symmetric :: Eq a => Matrix a -> Bool
+symmetric m = m == transpose m
+
 -- | Returns the diagonal of the matrix (from the top left to bottom right).
 diagonal :: Matrix a -> [a]
 diagonal m = diagonalList m 0
+
+-- | Returns the adjugate/adjoint version of the matrix.
+adjugate :: Num a => Matrix a -> Matrix a
+adjugate m = transpose (mapIndex (\ rs r -> mapIndex (\ cs c -> cofactor m r c) rs) m)
 
 -- | Returns the determinant of the matrix. The matrix must be square.
 determinant :: Num a => Matrix a -> a
@@ -73,11 +83,18 @@ complementMinor m r c = determinant (complementSubMatrix m r c)
 complementSubMatrix :: Num a => Matrix a -> Int -> Int -> Matrix a
 complementSubMatrix m r c = exceptIndex r [exceptIndex c rs | rs <- m]
 
--- utility methods
+{- Utility functions -}
 
 exceptIndex :: Int -> [a] -> [a]
 exceptIndex _ [] = []
 exceptIndex i (x:xs) = if i == 0 then xs else x : exceptIndex (i - 1) xs
+
+mapIndex :: (a -> Int -> a) -> [a] -> [a]
+mapIndex f xs = mapIndexInternal f xs 0
+
+mapIndexInternal :: (a -> Int -> a) -> [a] -> Int -> [a]
+mapIndexInternal _ [] _ = []
+mapIndexInternal f (x:xs) i = f x i : mapIndexInternal f xs (i + 1)
 
 cofactorList :: Num a => Matrix a -> Int -> Int -> [a]
 cofactorList m r c = if c < columnCount m then (element r c m * cofactor m r c) : cofactorList m r (c + 1) else []
