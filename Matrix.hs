@@ -48,6 +48,9 @@ columnCount :: Matrix a -> Int
 columnCount [] = 0
 columnCount (x:xs) = length x
 
+size :: Matrix a -> (Int, Int)
+size m = (rowCount m, columnCount m)
+
 -- | Returns true if the matrix is square.
 square :: Matrix a -> Bool
 square m = rowCount m == columnCount m
@@ -72,15 +75,19 @@ adjugate m = transpose (mapIndex (\ rs r -> mapIndex (\ cs c -> cofactor m r c) 
 determinant :: Num a => Matrix a -> a
 determinant [[x]] = x
 determinant [[a0, a1], [b0, b1]] = (a0 * b1) - (a1 * b0)
-determinant m = Prelude.sum (mapIndex (\ x i -> element 0 i m * cofactor m 0 i) (row 0 m))
+determinant m = if square m
+                then Prelude.sum (mapIndex (\ x i -> element 0 i m * cofactor m 0 i) (row 0 m))
+                else error "Cannot calculate the determinant of a rectangular matrix!"
 
 -- | Returns the transpose of the matrix.
 transpose :: Matrix a -> Matrix a
 transpose m = mapIndex (\ xs i -> column i m) m
 
 -- | Returns the inverse of the matrix. Throws an error if the matrix is singular.
-inverse :: Fractional a => Matrix a -> Matrix a
-inverse m = scalarProduct (adjugate m) (1.0 / determinant m)
+inverse :: (Fractional a, Eq a) => Matrix a -> Matrix a
+inverse m = if singular m
+            then error "Cannot invert a singular matrix!"
+            else scalarProduct (adjugate m) (1.0 / determinant m)
 
 -- | Returns the cofactor of the matrix at the specified row and column.
 cofactor :: Num a => Matrix a -> Int -> Int -> a
@@ -100,11 +107,15 @@ scalarProduct m s = map (map (* s)) m
 
 -- | Adds two matrices. Throws an error if the matrices have different sizes.
 sum :: Num a => Matrix a -> Matrix a -> Matrix a
-sum m1 m2 = mapIndex (\ rs r -> mapIndex (\ cs c -> element r c m1 + element r c m2) rs) m1
+sum m1 m2 = if size m1 == size m2
+            then mapIndex (\ rs r -> mapIndex (\ cs c -> element r c m1 + element r c m2) rs) m1
+            else error "Cannot add matrices of different sizes!"
 
 -- | Subtracts two matrices. Throws an error if the matrices have different sizes.
 difference :: Num a => Matrix a -> Matrix a -> Matrix a
-difference m1 m2 = mapIndex (\ rs r -> mapIndex (\ cs c -> element r c m1 - element r c m2) rs) m1
+difference m1 m2 = if size m1 == size m2
+                   then mapIndex (\ rs r -> mapIndex (\ cs c -> element r c m1 - element r c m2) rs) m1
+                   else error "Cannot subtract matrices of different sizes!"
 
 {- Utility functions -}
 
