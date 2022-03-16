@@ -18,6 +18,7 @@ module Matrix (
     complementMinor,
     complementSubmatrix,
     scalarProduct,
+    matrixProduct,
     Matrix.sum,
     difference,
 ) where
@@ -107,6 +108,12 @@ complementSubmatrix m r c = exceptIndex r [exceptIndex c rs | rs <- m]
 scalarProduct :: Num a => Matrix a -> a -> Matrix a
 scalarProduct m s = map (map (* s)) m
 
+-- | Multiplies two matrices together.
+matrixProduct :: Num a => Matrix a -> Matrix a -> Matrix a
+matrixProduct m1 m2 = if size m1 == size (transpose m2)
+                      then mapIndex (\ rs r -> [scalarProductList rs cs | cs <- transpose m2]) m1
+                      else error "Cannot multiply matrices of different sizes!"
+
 -- | Adds two matrices. Throws an error if the matrices have different sizes.
 sum :: Num a => Matrix a -> Matrix a -> Matrix a
 sum m1 m2 = if size m1 == size m2
@@ -131,3 +138,6 @@ mapIndex f xs = mapIndexInternal f xs 0
 mapIndexInternal :: (a -> Int -> b) -> [a] -> Int -> [b]
 mapIndexInternal _ [] _ = []
 mapIndexInternal f (x:xs) i = f x i : mapIndexInternal f xs (i + 1)
+
+scalarProductList :: Num a => [a] -> [a] -> a
+scalarProductList xs ys = Prelude.sum [x * y | (x, y) <- zip xs ys]
