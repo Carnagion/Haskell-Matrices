@@ -49,7 +49,7 @@ rowCount = length
 -- | Returns the number of columns in the matrix.
 columnCount :: Matrix a -> Int
 columnCount [] = 0
-columnCount (x:xs) = length x
+columnCount (x:_) = length x
 
 size :: Matrix a -> (Int, Int)
 size m = (rowCount m, columnCount m)
@@ -108,7 +108,7 @@ complementSubmatrix m r c = exceptIndex r [exceptIndex c rs | rs <- m]
 scalarProduct :: Num a => Matrix a -> a -> Matrix a
 scalarProduct m s = map (map (* s)) m
 
--- | Multiplies two matrices together.
+-- | Multiplies two matrices together. Throws an error if the matrices have different sizes.
 matrixProduct :: Num a => Matrix a -> Matrix a -> Matrix a
 matrixProduct m1 m2 = if size m1 == size (transpose m2)
                       then mapIndex (\ rs r -> [scalarProductList rs cs | cs <- transpose m2]) m1
