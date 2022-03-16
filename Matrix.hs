@@ -55,7 +55,7 @@ symmetric m = m == transpose m
 
 -- | Returns the diagonal of the matrix (from the top left to bottom right).
 diagonal :: Matrix a -> [a]
-diagonal m = diagonalList m 0
+diagonal m = mapIndex (\ rs r -> element r r m) m
 
 -- | Returns the adjugate/adjoint version of the matrix.
 adjugate :: Num a => Matrix a -> Matrix a
@@ -65,11 +65,11 @@ adjugate m = transpose (mapIndex (\ rs r -> mapIndex (\ cs c -> cofactor m r c) 
 determinant :: Num a => Matrix a -> a
 determinant [[x]] = x
 determinant [[a0, a1], [b0, b1]] = (a0 * b1) - (a1 * b0)
-determinant m = sum (cofactorList m 0 0)
+determinant m = sum (mapIndex (\ x i -> element 0 i m * cofactor m 0 i) (row 0 m))
 
 -- | Returns the transpose of the matrix.
 transpose :: Matrix a -> Matrix a
-transpose m = columnsList m 0
+transpose m = mapIndex (\ xs i -> column i m) m
 
 -- | Returns the cofactor of the matrix at the specified row and column.
 cofactor :: Num a => Matrix a -> Int -> Int -> a
@@ -89,18 +89,9 @@ exceptIndex :: Int -> [a] -> [a]
 exceptIndex _ [] = []
 exceptIndex i (x:xs) = if i == 0 then xs else x : exceptIndex (i - 1) xs
 
-mapIndex :: (a -> Int -> a) -> [a] -> [a]
+mapIndex :: (a -> Int -> b) -> [a] -> [b]
 mapIndex f xs = mapIndexInternal f xs 0
 
-mapIndexInternal :: (a -> Int -> a) -> [a] -> Int -> [a]
+mapIndexInternal :: (a -> Int -> b) -> [a] -> Int -> [b]
 mapIndexInternal _ [] _ = []
 mapIndexInternal f (x:xs) i = f x i : mapIndexInternal f xs (i + 1)
-
-cofactorList :: Num a => Matrix a -> Int -> Int -> [a]
-cofactorList m r c = if c < columnCount m then (element r c m * cofactor m r c) : cofactorList m r (c + 1) else []
-
-columnsList :: Matrix a -> Int -> Matrix a
-columnsList m i = if i < columnCount m then column i m : columnsList m (i + 1) else []
-
-diagonalList :: Matrix a -> Int -> [a]
-diagonalList m i = if i < rowCount m then element i i m : diagonalList m (i + 1) else []
