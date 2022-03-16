@@ -28,7 +28,7 @@ type Matrix a = [[a]]
 -- | Returns true if each row of the matrix has the same number of elements.
 valid :: Matrix a -> Bool
 valid [] = True
-valid (x:xs) = all (\ r -> length r == length x) xs
+valid (xs:xss) = all (\ xs' -> length xs' == length xs) xss
 
 -- | Returns the element at the specified row and column in the matrix.
 element :: Int -> Int -> Matrix a -> a
@@ -68,23 +68,23 @@ symmetric m = m == transpose m
 
 -- | Returns the diagonal of the matrix (from the top left to bottom right).
 diagonal :: Matrix a -> [a]
-diagonal m = mapIndex (\ rs r -> element r r m) m
+diagonal m = mapIndex (\ xs i -> element i i m) m
 
 -- | Returns the adjugate/adjoint version of the matrix.
 adjugate :: Num a => Matrix a -> Matrix a
-adjugate m = transpose (mapIndex (\ rs r -> mapIndex (\ cs c -> cofactor m r c) rs) m)
+adjugate m = transpose (mapIndex (\ xs r -> mapIndex (\ _ c -> cofactor m r c) xs) m)
 
 -- | Returns the determinant of the matrix. Throws an error if the matrix is not square.
 determinant :: Num a => Matrix a -> a
 determinant [[x]] = x
-determinant [[a0, a1], [b0, b1]] = (a0 * b1) - (a1 * b0)
+determinant [[x00, x01], [x10, x11]] = (x00 * x11) - (x01 * x10)
 determinant m = if square m
-                then Prelude.sum (mapIndex (\ x i -> element 0 i m * cofactor m 0 i) (row 0 m))
+                then Prelude.sum (mapIndex (\ _ i -> element 0 i m * cofactor m 0 i) (row 0 m))
                 else error "Cannot calculate the determinant of a rectangular matrix!"
 
 -- | Returns the transpose of the matrix.
 transpose :: Matrix a -> Matrix a
-transpose m = mapIndex (\ xs i -> column i m) (head m)
+transpose m = mapIndex (\ _ i -> column i m) (head m)
 
 -- | Returns the inverse of the matrix. Throws an error if the matrix is singular.
 inverse :: (Fractional a, Eq a) => Matrix a -> Matrix a
@@ -102,7 +102,7 @@ complementMinor m r c = determinant (complementSubmatrix m r c)
 
 -- | Returns the complement sub-matrix of the matrix at the specified row and column.
 complementSubmatrix :: Num a => Matrix a -> Int -> Int -> Matrix a
-complementSubmatrix m r c = exceptIndex r [exceptIndex c rs | rs <- m]
+complementSubmatrix m r c = exceptIndex r [exceptIndex c xs | xs <- m]
 
 -- | Multiplies all elements of the matrix with the specified scalar.
 scalarProduct :: Num a => Matrix a -> a -> Matrix a
@@ -111,19 +111,19 @@ scalarProduct m s = map (map (* s)) m
 -- | Multiplies two matrices together. Throws an error if the matrices have different sizes.
 matrixProduct :: Num a => Matrix a -> Matrix a -> Matrix a
 matrixProduct m1 m2 = if size m1 == size (transpose m2)
-                      then mapIndex (\ rs r -> [scalarProductList rs cs | cs <- transpose m2]) m1
+                      then map (\ xs -> [scalarProductList xs ys | ys <- transpose m2]) m1
                       else error "Cannot multiply matrices of different sizes!"
 
 -- | Adds two matrices. Throws an error if the matrices have different sizes.
 sum :: Num a => Matrix a -> Matrix a -> Matrix a
 sum m1 m2 = if size m1 == size m2
-            then mapIndex (\ rs r -> mapIndex (\ cs c -> element r c m1 + element r c m2) rs) m1
+            then mapIndex (\ xs r -> mapIndex (\ _ c -> element r c m1 + element r c m2) xs) m1
             else error "Cannot add matrices of different sizes!"
 
 -- | Subtracts two matrices. Throws an error if the matrices have different sizes.
 difference :: Num a => Matrix a -> Matrix a -> Matrix a
 difference m1 m2 = if size m1 == size m2
-                   then mapIndex (\ rs r -> mapIndex (\ cs c -> element r c m1 - element r c m2) rs) m1
+                   then mapIndex (\ xs r -> mapIndex (\ _ c -> element r c m1 - element r c m2) xs) m1
                    else error "Cannot subtract matrices of different sizes!"
 
 {- Utility functions -}
