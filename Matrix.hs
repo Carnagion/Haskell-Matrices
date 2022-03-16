@@ -72,7 +72,7 @@ adjugate m = transpose (mapIndex (\ rs r -> mapIndex (\ cs c -> cofactor m r c) 
 determinant :: Num a => Matrix a -> a
 determinant [[x]] = x
 determinant [[a0, a1], [b0, b1]] = (a0 * b1) - (a1 * b0)
-determinant m = sum (mapIndex (\ x i -> element 0 i m * cofactor m 0 i) (row 0 m))
+determinant m = Prelude.sum (mapIndex (\ x i -> element 0 i m * cofactor m 0 i) (row 0 m))
 
 -- | Returns the transpose of the matrix.
 transpose :: Matrix a -> Matrix a
@@ -97,6 +97,14 @@ complementSubmatrix m r c = exceptIndex r [exceptIndex c rs | rs <- m]
 -- | Multiplies all elements of the matrix with the specified scalar.
 scalarProduct :: Num a => Matrix a -> a -> Matrix a
 scalarProduct m s = map (map (* s)) m
+
+-- | Adds two matrices. Throws an error if the matrices have different sizes.
+sum :: Num a => Matrix a -> Matrix a -> Matrix a
+sum m1 m2 = mapIndex (\ rs r -> mapIndex (\ cs c -> element r c m1 + element r c m2) rs) m1
+
+-- | Subtracts two matrices. Throws an error if the matrices have different sizes.
+difference :: Num a => Matrix a -> Matrix a -> Matrix a
+difference m1 m2 = mapIndex (\ rs r -> mapIndex (\ cs c -> element r c m1 - element r c m2) rs) m1
 
 {- Utility functions -}
 
