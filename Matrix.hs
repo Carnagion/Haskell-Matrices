@@ -18,6 +18,8 @@ module Matrix (
     complementMinor,
     complementSubmatrix,
     scalarProduct,
+    Matrix.sum,
+    difference,
 ) where
 
 type Matrix a = [[a]]
@@ -81,7 +83,7 @@ determinant m = if square m
 
 -- | Returns the transpose of the matrix.
 transpose :: Matrix a -> Matrix a
-transpose m = mapIndex (\ xs i -> column i m) m
+transpose m = mapIndex (\ xs i -> column i m) (head m)
 
 -- | Returns the inverse of the matrix. Throws an error if the matrix is singular.
 inverse :: (Fractional a, Eq a) => Matrix a -> Matrix a
