@@ -80,7 +80,7 @@ determinant [[x]] = x
 determinant [[x00, x01], [x10, x11]] = (x00 * x11) - (x01 * x10)
 determinant m = if square m
                 then Prelude.sum (mapIndex (\ _ i -> element 0 i m * cofactor m 0 i) (row 0 m))
-                else error "Cannot calculate the determinant of a rectangular matrix!"
+                else error "cannot calculate determinant of a rectangular matrix"
 
 -- | Returns the transpose of the matrix.
 transpose :: Matrix a -> Matrix a
@@ -89,7 +89,7 @@ transpose m = mapIndex (\ _ i -> column i m) (head m)
 -- | Returns the inverse of the matrix. Throws an error if the matrix is singular.
 inverse :: (Fractional a, Eq a) => Matrix a -> Matrix a
 inverse m = if singular m
-            then error "Cannot invert a singular matrix!"
+            then error "cannot invert a singular matrix"
             else scalarProduct (adjugate m) (1.0 / determinant m)
 
 -- | Returns the cofactor of the matrix at the specified row and column.
@@ -112,25 +112,27 @@ scalarProduct m s = map (map (* s)) m
 matrixProduct :: Num a => Matrix a -> Matrix a -> Matrix a
 matrixProduct m1 m2 = if size m1 == size (transpose m2)
                       then map (\ xs -> [scalarProductList xs ys | ys <- transpose m2]) m1
-                      else error "Cannot multiply matrices of different sizes!"
+                      else error "cannot multiply matrices of different sizes"
 
 -- | Adds two matrices. Throws an error if the matrices have different sizes.
 sum :: Num a => Matrix a -> Matrix a -> Matrix a
 sum m1 m2 = if size m1 == size m2
             then mapIndex (\ xs r -> mapIndex (\ _ c -> element r c m1 + element r c m2) xs) m1
-            else error "Cannot add matrices of different sizes!"
+            else error "cannot add matrices of different sizes"
 
 -- | Subtracts two matrices. Throws an error if the matrices have different sizes.
 difference :: Num a => Matrix a -> Matrix a -> Matrix a
 difference m1 m2 = if size m1 == size m2
                    then mapIndex (\ xs r -> mapIndex (\ _ c -> element r c m1 - element r c m2) xs) m1
-                   else error "Cannot subtract matrices of different sizes!"
+                   else error "cannot subtract matrices of different sizes"
 
 {- Utility functions -}
 
 exceptIndex :: Int -> [a] -> [a]
 exceptIndex _ [] = []
-exceptIndex i (x:xs) = if i == 0 then xs else x : exceptIndex (i - 1) xs
+exceptIndex i (x:xs) = if i == 0
+                       then xs
+                       else x : exceptIndex (i - 1) xs
 
 mapIndex :: (a -> Int -> b) -> [a] -> [b]
 mapIndex f xs = mapIndexInternal f xs 0
