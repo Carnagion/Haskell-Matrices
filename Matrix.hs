@@ -144,3 +144,11 @@ mapIndexInternal f (x:xs) i = f x i : mapIndexInternal f xs (i + 1)
 
 scalarProductList :: Num a => [a] -> [a] -> a
 scalarProductList xs ys = Prelude.sum [x * y | (x, y) <- zip xs ys]
+
+squareSubmatrices :: Matrix a -> [Matrix a]
+squareSubmatrices m = concat (mapIndex (\ xs r -> mapIndex (\ _ c -> complementSubmatrix m r c) xs) m)
+
+rankSquare :: (Num a, Eq a) => Matrix a -> Int
+rankSquare m = if singular m
+               then maximum (map rankSquare (squareSubmatrices m))
+               else rowCount m
