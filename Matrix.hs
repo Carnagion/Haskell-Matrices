@@ -90,7 +90,7 @@ rank m = (if square m then rankSquare else rankRectangular) m
 
 -- | Returns the transpose of the matrix.
 transpose :: Matrix a -> Matrix a
-transpose m = mapIndex (\ _ i -> column i m) (head m)
+transpose m = mapIndex (\ _ i -> column i m) (row 0 m)
 
 -- | Returns the inverse of the matrix. Throws an error if the matrix is singular.
 inverse :: (Fractional a, Eq a) => Matrix a -> Matrix a

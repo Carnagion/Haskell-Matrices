@@ -1,10 +1,12 @@
 # Haskell-Matrices
 
 A small Haskell module that contains functions to perform various operations on matrices, such as
-- Calculating the determinant
-- Calculating the transpose
-- Calculating the inverse
-- Adding/subtracting/multiplying matrices
+- Addition/subtraction/multiplication
+- Determinant
+- Rank
+- Transpose
+- Inverse
+- Adjugate  
 and more.
 
 # Usage
