@@ -23,6 +23,7 @@ module Matrix (
     difference,
 ) where
 
+-- | A matrix represented as a list of lists, where each inner list is a row.
 type Matrix a = [[a]]
 
 -- | Returns true if each row of the matrix has the same number of elements.
@@ -101,7 +102,7 @@ complementMinor :: Num a => Matrix a -> Int -> Int -> a
 complementMinor m r c = determinant (complementSubmatrix m r c)
 
 -- | Returns the complement sub-matrix of the matrix at the specified row and column.
-complementSubmatrix :: Num a => Matrix a -> Int -> Int -> Matrix a
+complementSubmatrix :: Matrix a -> Int -> Int -> Matrix a
 complementSubmatrix m r c = exceptIndex r [exceptIndex c xs | xs <- m]
 
 -- | Multiplies all elements of the matrix with the specified scalar.
