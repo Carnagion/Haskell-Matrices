@@ -70,7 +70,9 @@ symmetric m = m == transpose m
 
 -- | Returns the diagonal of the matrix (from the top left to bottom right).
 diagonal :: Matrix a -> [a]
-diagonal m = mapIndex (\ xs i -> element i i m) m
+diagonal m = if square m
+             then mapIndex (\ _ i -> element i i m) m
+             else error "cannot get the diagonal of a rectangular matrix"
 
 -- | Returns the adjugate/adjoint version of the matrix.
 adjugate :: Num a => Matrix a -> Matrix a
