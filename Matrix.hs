@@ -83,6 +83,12 @@ determinant m = if square m
                 then Prelude.sum (mapIndex (\ _ i -> element 0 i m * cofactor m 0 i) (row 0 m))
                 else error "cannot calculate determinant of a rectangular matrix"
 
+-- | Returns the rank of the matrix.
+rank :: (Num a, Eq a) => Matrix a -> Int
+rank m = if square m
+         then rankSquare m
+         else error "cannot calculate rank of a rectangular matrix (not implemented)"
+
 -- | Returns the transpose of the matrix.
 transpose :: Matrix a -> Matrix a
 transpose m = mapIndex (\ _ i -> column i m) (head m)
