@@ -12,6 +12,7 @@ module Matrix (
     diagonal,
     adjugate,
     determinant,
+    rank,
     transpose,
     inverse,
     cofactor,
