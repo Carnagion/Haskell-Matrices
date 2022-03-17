@@ -160,6 +160,8 @@ rankSquare m = if singular m
                else rowCount m
 
 rankRectangular :: (Num a, Eq a) => Matrix a -> Int
-rankRectangular m = if rowCount m > columnCount m
-                    then maximum (map rank (mapIndex (\ _ i -> exceptIndex i m) m))
-                    else maximum (map rank (mapIndex (\ _ i -> exceptIndex i (transpose m)) (transpose m)))
+rankRectangular [_] = 1
+rankRectangular m = maximum (map rank (mapIndex (\ _ i -> exceptIndex i m') m'))
+                    where m' = if rowCount m > columnCount m
+                               then m
+                               else transpose m
