@@ -6,7 +6,8 @@ A small Haskell module that contains functions to perform various operations on 
 - Rank
 - Transpose
 - Inverse
-- Adjugate  
+- Adjugate
+
 and more.
 
 # Usage
