@@ -85,9 +85,7 @@ determinant m = if square m
 
 -- | Returns the rank of the matrix.
 rank :: (Num a, Eq a) => Matrix a -> Int
-rank m = if square m
-         then rankSquare m
-         else error "cannot calculate rank of a rectangular matrix (not implemented)"
+rank m = (if square m then rankSquare else rankRectangular) m
 
 -- | Returns the transpose of the matrix.
 transpose :: Matrix a -> Matrix a
@@ -159,3 +157,8 @@ rankSquare [[_]] = 1
 rankSquare m = if singular m
                then maximum (map rankSquare (squareSubmatrices m))
                else rowCount m
+
+rankRectangular :: (Num a, Eq a) => Matrix a -> Int
+rankRectangular m = if rowCount m > columnCount m
+                    then maximum (map rank (mapIndex (\ _ i -> exceptIndex i m) m))
+                    else maximum (map rank (mapIndex (\ _ i -> exceptIndex i (transpose m)) (transpose m)))
