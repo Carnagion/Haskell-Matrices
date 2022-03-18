@@ -8,6 +8,7 @@ module Matrix (
     column,
     rowCount,
     columnCount,
+    size,
     square,
     singular,
     symmetric,
@@ -67,6 +68,7 @@ columnCount :: Matrix a -> Int
 columnCount [] = 0
 columnCount (x:_) = length x
 
+-- | Returns the dimensions of the matrix as (rows, columns).
 size :: Matrix a -> (Int, Int)
 size m = (rowCount m, columnCount m)
 
@@ -157,11 +159,11 @@ exceptIndex i (x:xs) = if i == 0
                        else x : exceptIndex (i - 1) xs
 
 mapIndex :: (a -> Int -> b) -> [a] -> [b]
-mapIndex f xs = mapIndexInternal f xs 0
+mapIndex f xs = mapIndexFrom f xs 0
 
-mapIndexInternal :: (a -> Int -> b) -> [a] -> Int -> [b]
-mapIndexInternal _ [] _ = []
-mapIndexInternal f (x:xs) i = f x i : mapIndexInternal f xs (i + 1)
+mapIndexFrom :: (a -> Int -> b) -> [a] -> Int -> [b]
+mapIndexFrom _ [] _ = []
+mapIndexFrom f (x:xs) i = f x i : mapIndexFrom f xs (i + 1)
 
 scalarProductList :: Num a => [a] -> [a] -> a
 scalarProductList xs ys = Prelude.sum [x * y | (x, y) <- zip xs ys]
