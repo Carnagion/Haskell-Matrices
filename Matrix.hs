@@ -1,6 +1,8 @@
 module Matrix (
     Matrix,
     valid,
+    Matrix.null,
+    identity,
     element,
     row,
     column,
@@ -168,6 +170,7 @@ squareSubmatrices :: Matrix a -> [Matrix a]
 squareSubmatrices m = concat (mapIndex (\ xs r -> mapIndex (\ _ c -> complementSubmatrix m r c) xs) m)
 
 rankSquare :: (Num a, Eq a) => Matrix a -> Int
+rankSquare [[0]] = 0
 rankSquare [[_]] = 1
 rankSquare m = if singular m
                then maximum (map rankSquare (squareSubmatrices m))
