@@ -24,6 +24,8 @@ module Matrix (
     difference,
 ) where
 
+import Data.Ix (Ix(range))
+
 -- | A matrix represented as a list of lists, where each inner list is a row.
 type Matrix a = [[a]]
 
@@ -31,6 +33,16 @@ type Matrix a = [[a]]
 valid :: Matrix a -> Bool
 valid [] = True
 valid (xs:xss) = all (\ xs' -> length xs' == length xs) xss
+
+-- | Constructs a null matrix of the specified size.
+null :: Int -> Int -> Matrix Int
+null r c = map (\ _ -> map (const 0) (range (0, c - 1))) (range (0, r - 1))
+
+-- | Constructs an identity matrix of the specified size. Throws an error if the size is not a square.
+identity :: Int -> Int -> Matrix Int
+identity r c = if r == c
+               then map (\ r' -> map (\ c' -> if r' == c' then 1 else 0) (range (0, c - 1))) (range (0, r - 1))
+               else error "cannot construct rectangular identity matrix"
 
 -- | Returns the element at the specified row and column in the matrix.
 element :: Int -> Int -> Matrix a -> a
