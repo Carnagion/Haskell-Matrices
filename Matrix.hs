@@ -199,5 +199,4 @@ rankRectangular m = maximum (map rank (mapIndex (\ _ i -> exceptIndex i m') m'))
 gaussianFrom :: (Eq a, Fractional a) => Int -> Matrix a -> Matrix a
 gaussianFrom i m = if triangular m 
                    then m
-                   else gaussianFrom (i + 1) m'
-                   where m' = take (i + 1) m ++ mapIndex (\ xs r -> mapIndex (\ x c -> x + (- (element (r + i + 1) i m / element i i m)) * element i c m) xs) (drop (i + 1) m)
+                   else gaussianFrom (i + 1) (take (i + 1) m ++ mapIndex (\ xs r -> mapIndex (\ x c -> x + (- (element (r + i + 1) i m / element i i m)) * element i c m) xs) (drop (i + 1) m))
