@@ -12,6 +12,7 @@ module Matrix (
     square,
     singular,
     symmetric,
+    triangular,
     diagonal,
     adjugate,
     determinant,
@@ -25,9 +26,11 @@ module Matrix (
     matrixProduct,
     Matrix.sum,
     difference,
+    gaussian,
 ) where
 
 import Data.Ix (Ix(range))
+import Data.List (sort)
 
 -- | A matrix represented as a list of lists, where each inner list is a row.
 type Matrix a = [[a]]
@@ -83,6 +86,10 @@ singular m = determinant m == 0
 -- | Returns true if the matrix is symmetric (i.e. equal to its transpose).
 symmetric :: Eq a => Matrix a -> Bool
 symmetric m = m == transpose m
+
+-- | Returns true if the matrix is triangular or could be turned into a triangular square matrix by removing some columns.
+triangular :: (Num a, Eq a) => [[a]] -> Bool
+triangular m = sort (map (length . takeWhile (== 0)) m) == range (0, rowCount m - 1)
 
 -- | Returns the diagonal of the matrix (from the top left to bottom right).
 diagonal :: Matrix a -> [a]
@@ -150,6 +157,10 @@ difference m1 m2 = if size m1 == size m2
                    then mapIndex (\ xs r -> mapIndex (\ _ c -> element r c m1 - element r c m2) xs) m1
                    else error "cannot subtract matrices of different sizes"
 
+-- | Returns a matrix resulting from applying Gaussian elimination on the matrix.
+gaussian :: (Fractional a, Eq a) => Matrix a -> Matrix a
+gaussian = gaussianFrom 0
+
 {- Utility functions -}
 
 exceptIndex :: Int -> [a] -> [a]
@@ -184,3 +195,9 @@ rankRectangular m = maximum (map rank (mapIndex (\ _ i -> exceptIndex i m') m'))
                     where m' = if rowCount m > columnCount m
                                then m
                                else transpose m
+
+gaussianFrom :: (Fractional a, Eq a) => Int -> Matrix a -> Matrix a
+gaussianFrom i m = if triangular m 
+                   then m
+                   else gaussianFrom (i + 1) m'
+                   where m' = take (i + 1) m ++ mapIndex (\ xs r -> mapIndex (\ x c -> x + (- (element (r + i + 1) i m / element i i m)) * element i c m) xs) (drop (i + 1) m)
