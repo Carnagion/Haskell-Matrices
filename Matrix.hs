@@ -80,7 +80,7 @@ square :: Matrix a -> Bool
 square m = rowCount m == columnCount m
 
 -- | Returns true if the determinant of the matrix is 0.
-singular :: (Num a, Eq a) => Matrix a -> Bool
+singular :: (Eq a, Num a) => Matrix a -> Bool
 singular m = determinant m == 0
 
 -- | Returns true if the matrix is symmetric (i.e. equal to its transpose).
@@ -88,7 +88,7 @@ symmetric :: Eq a => Matrix a -> Bool
 symmetric m = m == transpose m
 
 -- | Returns true if the matrix is triangular or could be turned into a triangular square matrix by removing some columns.
-triangular :: (Num a, Eq a) => [[a]] -> Bool
+triangular :: (Eq a, Num a) => Matrix a -> Bool
 triangular m = sort (map (length . takeWhile (== 0)) m) == range (0, rowCount m - 1)
 
 -- | Returns the diagonal of the matrix (from the top left to bottom right).
@@ -110,7 +110,7 @@ determinant m = if square m
                 else error "cannot calculate determinant of a rectangular matrix"
 
 -- | Returns the rank of the matrix.
-rank :: (Num a, Eq a) => Matrix a -> Int
+rank :: (Eq a, Num a) => Matrix a -> Int
 rank m = (if square m then rankSquare else rankRectangular) m
 
 -- | Returns the transpose of the matrix.
@@ -118,7 +118,7 @@ transpose :: Matrix a -> Matrix a
 transpose m = mapIndex (\ _ i -> column i m) (row 0 m)
 
 -- | Returns the inverse of the matrix. Throws an error if the matrix is singular.
-inverse :: (Fractional a, Eq a) => Matrix a -> Matrix a
+inverse :: (Eq a, Fractional a) => Matrix a -> Matrix a
 inverse m = if singular m
             then error "cannot invert a singular matrix"
             else scalarProduct (adjugate m) (1.0 / determinant m)
@@ -158,7 +158,7 @@ difference m1 m2 = if size m1 == size m2
                    else error "cannot subtract matrices of different sizes"
 
 -- | Returns a matrix resulting from applying Gaussian elimination on the matrix.
-gaussian :: (Fractional a, Eq a) => Matrix a -> Matrix a
+gaussian :: (Eq a, Fractional a) => Matrix a -> Matrix a
 gaussian = gaussianFrom 0
 
 {- Utility functions -}
@@ -182,21 +182,21 @@ scalarProductList xs ys = Prelude.sum [x * y | (x, y) <- zip xs ys]
 squareSubmatrices :: Matrix a -> [Matrix a]
 squareSubmatrices m = concat (mapIndex (\ xs r -> mapIndex (\ _ c -> complementSubmatrix m r c) xs) m)
 
-rankSquare :: (Num a, Eq a) => Matrix a -> Int
+rankSquare :: (Eq a, Num a) => Matrix a -> Int
 rankSquare [[0]] = 0
 rankSquare [[_]] = 1
 rankSquare m = if singular m
                then maximum (map rankSquare (squareSubmatrices m))
                else rowCount m
 
-rankRectangular :: (Num a, Eq a) => Matrix a -> Int
+rankRectangular :: (Eq a, Num a) => Matrix a -> Int
 rankRectangular [_] = 1
 rankRectangular m = maximum (map rank (mapIndex (\ _ i -> exceptIndex i m') m'))
                     where m' = if rowCount m > columnCount m
                                then m
                                else transpose m
 
-gaussianFrom :: (Fractional a, Eq a) => Int -> Matrix a -> Matrix a
+gaussianFrom :: (Eq a, Fractional a) => Int -> Matrix a -> Matrix a
 gaussianFrom i m = if triangular m 
                    then m
                    else gaussianFrom (i + 1) m'
